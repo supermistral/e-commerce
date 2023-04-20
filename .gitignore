@@ -1,0 +1,10 @@
+__pycache__
+
+venv
+
+.env
+.*.env
+
+celerybeat-schedule
+
+node_modules
