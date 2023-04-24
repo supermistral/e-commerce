@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  ms-product:
+    build: ./
+    container_name: e-commerce_ms-product
+    command: python src/main.py
+    volumes:
+      - ./:/usr/src/app/
+      - ../proto/product/:/usr/src/app/proto/
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env
+    depends_on:
+      - ms-product-db
+
+  ms-product-db:
+    image: postgres:14-alpine
+    container_name: e-commerce_ms-product-db
+    env_file:
+      - ./.db.env

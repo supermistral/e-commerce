@@ -1,0 +1,11 @@
+alembic==1.10.3
+asyncpg==0.27.0
+greenlet==2.0.2
+grpcio==1.54.0
+grpcio-tools==1.54.0
+Mako==1.2.4
+MarkupSafe==2.1.2
+protobuf==4.22.3
+pydantic==1.10.7
+SQLAlchemy==2.0.9
+typing-extensions==4.5.0

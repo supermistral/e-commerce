@@ -2,6 +2,8 @@ __pycache__
 
 venv
 
+grpc_tools
+
 .env
 .*.env
 
