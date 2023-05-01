@@ -1,14 +1,11 @@
 from typing import Any, Callable, Sequence
 
 from grpc import aio as grpc
-from google.protobuf.json_format import MessageToDict, ParseDict
-from google.protobuf.message import Message
 
+from .loader import GrpcLoader
 from .interfaces import GrpcModel, ObjectAttrs, RouteAttrs, Servicer
 from .utils import camel_to_snake_case, create_annotated_function
-from .types import APIModelType
 from .parser import GrpcParser
-from ..config import settings
 
 
 class APIBuilder:
@@ -29,13 +26,6 @@ class APIBuilder:
     def _get_service_path(self, attrs: ObjectAttrs) -> str:
         path = attrs.attrs.get('path', None) or attrs.obj.__name__.rstrip('Servicer')
         return path.rstrip('/')
-
-    def _message_to_model(self, message: Message, model: APIModelType) -> Any:
-        dict = MessageToDict(message)
-        return model.parse_obj(dict)
-
-    def _model_to_message(self, model: Any, message: type[Message]) -> Message:
-        return ParseDict(model.dict(), message())
 
     def _build_service_route(self, servicer: Servicer) -> list[RouteAttrs]:
         servicer_attrs = servicer.attrs
@@ -60,9 +50,15 @@ class APIBuilder:
             async def endpoint(**kwargs) -> Any:
                 request = kwargs.get('request')
                 response_msg = await procedure(
-                    self._model_to_message(model=request, message=request_model.cls)
+                    GrpcLoader.model_to_message(
+                        model=request,
+                        message=request_model.cls
+                    )
                 )
-                return self._message_to_model(message=response_msg, model=response_model.model)
+                return GrpcLoader.message_to_model(
+                    message=response_msg,
+                    model=response_model.model
+                )
 
             return create_annotated_function(
                 endpoint,

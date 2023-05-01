@@ -7,6 +7,15 @@ from pydantic import BaseModel
 from .types import ModuleClassesType
 
 
+class DataclassToDictMixin:
+    """
+    Simple way to convert `dataclass` into a dict
+    """
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
 @dataclass(frozen=True)
 class GrpcTools:
     services: ModuleClassesType
@@ -37,11 +46,8 @@ class Servicer:
 
 
 @dataclass(frozen=True)
-class RouteAttrs:
+class RouteAttrs(DataclassToDictMixin):
     path: str
     endpoint: Callable[..., Any]
     methods: list[str]
     response_model: Optional[type[BaseModel]] = None
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
