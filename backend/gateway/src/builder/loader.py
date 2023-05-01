@@ -1,6 +1,7 @@
 import re
+import copy
 from collections import defaultdict
-from typing import Any, Generator, TypeVar
+from typing import Any, Generator, Iterable, TypeVar
 
 from protobuf_to_pydantic import msg_to_pydantic_model
 from google.protobuf.json_format import MessageToDict, ParseDict
@@ -84,5 +85,16 @@ class GrpcLoader:
         return model.parse_obj(dict)
 
     @staticmethod
-    def model_to_message(model: APIModelType, message: type[Message]) -> Message:
-        return ParseDict(model.dict(), message())
+    def model_to_message(model: APIModelType, message: type[Message], fields: dict[str, Any]) -> Message:
+        return ParseDict(model.dict() | fields, message())
+
+    @staticmethod
+    def exclude_model_fields(model: type[APIModelType], fields: Iterable[str]) -> type[APIModelType]:
+        new_model = copy.deepcopy(model)
+
+        for field in fields:
+            if type(new_model.__fields_set__) == set:
+                new_model.__fields_set__.remove(field)
+            del new_model.__fields__[field]
+
+        return new_model
